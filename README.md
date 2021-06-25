@@ -51,11 +51,33 @@ minikube stop
 minikube config set memory 16384 # increase default memory limit
 minikube addons list
 
+kubectl version
+kubectl config view # view kubectl configuration
+kubectl cluster-info
 
 kubectl get po -A
+kubectl get nodes
 kubectl create deployment hello-minikube --image=k8s.gcr.io/echoserver:1.4
-kubectl expose deployment hello-minikube --type=NodePort --port=8080
+kubectl get deployments
+kubectl expose deployment hello-minikube --type=NodePort --port=8080 # make container accessible from outside the Kubernetes virtual network
+kubectl port-forward service/hello-minikube 7080:8080 # alternative to service
+kubectl proxy # forward traffic into cluster-wide, private network
 kubectl get services <deployment-name>
-kubectl port-forward service/hello-minikube 7080:8080
 kubectl describe pod <pod-id>
+kubectl get events # view cluster events
+kubectl delete deployment hello-node
+
+export POD_NAME=$(kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}') #  get the Pod name, and we'll store in the environment variable POD_NAME
+echo Name of the Pod: $POD_NAME
+# access the Pod through the API by running:
+curl http://localhost:8001/api/v1/namespaces/default/pods/$POD_NAME/
+
+# Troubleshooting
+kubectl get # list resources
+kubectl describe pods # show what containers are inside a pod and what images are used
+kubectl logs # print the logs from a container in a pod
+kubectl exec # execute a command on a container in a pod
+
+kubectl exec $POD_NAME bash # execute commands on the container
+
 ```
