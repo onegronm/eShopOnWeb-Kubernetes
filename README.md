@@ -38,6 +38,7 @@ You can also run the applications by using the instructions located in their `Do
 - Helm Repository
 - Flux
 - Terraform
+- AKS
 
 https://kubernetes.io/docs/reference/kubectl/cheatsheet/
 
