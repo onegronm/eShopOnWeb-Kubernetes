@@ -14,3 +14,25 @@ docker-compose up
 You should be able to make requests to localhost:5106 for the Web project, and localhost:5200 for the Public API project once these commands complete. If you have any problems, especially with login, try from a new guest or incognito browser instance.
 
 You can also run the applications by using the instructions located in their `Dockerfile` file in the root of each project. Again, run these commands from the root of the solution (where the .sln file is located).
+
+## Planned features
+- Local setup with Draft
+- Service with LoadBalancer
+- Healthchecks
+- Secrets
+- Volumes
+- WebUI
+- ConfigMap
+- Ingress Controller
+- Pod Presets
+- StatefulSet
+- DeamonSet
+- Resoure usage monitoring
+- Autoscaling
+- Namespace 
+- Namespace quota
+- RBAC
+- Pod Security Policies
+- Helm Chart
+- Helm Repository
+- Flux
