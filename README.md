@@ -36,3 +36,4 @@ You can also run the applications by using the instructions located in their `Do
 - Helm Chart
 - Helm Repository
 - Flux
+- Terraform
