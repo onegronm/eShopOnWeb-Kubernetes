@@ -1,6 +1,6 @@
 # Microsoft eShopOnWeb ASP.NET Core Reference Application on Kubernetes
 
-Sample ASP.NET Core reference application, powered by Microsoft, demonstrating deployment of a single-process (monolithic) application to an Azure Kubernetes Cluster (AKS).
+Sample ASP.NET Core reference application, powered by Microsoft, demonstrating deployment of a single-process (monolithic) application to a Kubernetes cluster.
 
 ## Running the sample using Docker
 
