@@ -38,3 +38,23 @@ You can also run the applications by using the instructions located in their `Do
 - Helm Repository
 - Flux
 - Terraform
+
+https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+
+```bash
+minikube start
+minikube dashboard
+minikube service <service-name> # launches a web browser for you
+minikube pause
+minikube stop
+minikube config set memory 16384 # increase default memory limit
+minikube addons list
+
+
+kubectl get po -A
+kubectl create deployment hello-minikube --image=k8s.gcr.io/echoserver:1.4
+kubectl expose deployment hello-minikube --type=NodePort --port=8080
+kubectl get services <deployment-name>
+kubectl port-forward service/hello-minikube 7080:8080
+kubectl describe pod <pod-id>
+```
