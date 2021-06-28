@@ -60,6 +60,7 @@ kubectl cluster-info
 kubectl get pods # list all pods in non-kubernetes namespaces
 kubectl get pods -A # list all pods in all namespaces
 kubectl get pods -l <label> # get pods with specified label
+kubectl get pods --output=wide # get pods with local IPs
 kubectl get nodes
 kubectl get deployments
 kubectl get services
@@ -76,6 +77,8 @@ kubectl describe <service> # find out what port was opened externally
 kubectl describe deployment # see the name of the label created
 kubectl get events # view cluster events
 kubectl label pods <pod-name> <label> # apply a new label to a pod
+kubectl get replicasets
+kubectl describe replicasets
 
 export POD_NAME=$(kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}') # get the Pod name, and we'll store in the environment variable POD_NAME
 echo Name of the Pod: $POD_NAME
@@ -93,13 +96,24 @@ kubectl exec $POD_NAME bash # execute commands on the container
 
 # Scaling out
 kubectl get rs # get ReplicaSet
-kubectl scale <deployment> --replicas=4
+kubectl scale deployment <deployment> --replicas=4
 export NODE_PORT=$(kubectl get services/kubernetes-bootcamp -o go-template='{{(index .spec.ports 0).nodePort}}')
 echo NODE_PORT=$NODE_PORT
 curl $(minikube ip):$NODE_PORT # curl to the exposed IP and port. Execute the command multiple times. We hit a different Pod with every request. This demonstrates that the load-balancing is working
 
-# Updating
+# Simple deployment
+kubectl apply -f https://k8s.io/examples/service/load-balancer-example.yaml
 kubectl get deployments # list deployments
+kubectl describe deployments <name>
+kubectl get replicasets
+kubectl describe replicasets
+kubectl expose deployment hello-world --type=LoadBalancer --name=my-service
+kubectl get services my-service # get external IP
+http://40.76.173.122:8080/ # access external IP from browser
+kubectl delete services my-service
+kubectl delete deployment hello-world
+
+# Updating
 kubectl get pods # view running pods
 kubectl describe pods # view current image version of the app
 kubectl set image deployment/frontend www=image:v2 # rolling update "www" containers of "frontend" deployment, updating the image
@@ -108,4 +122,43 @@ kubectl rollout status deployments/kubernetes-bootcamp # confirm the update
 kubectl rollout status -w deployment/frontend # watch rolling update status of "frontend" deployment until completion
 kubectl describe pods # view current image version
 kubectl rollout undo deployments/kubernetes-bootcamp # rollback to the previous deployment
+
+# Logging
+kubectl logs -f deployment/redis-leader
+```
+
+## Deployment
+```yaml
+apiVersion: apps/v1
+kind: Deployment # provides declarative updates for Pods and ReplicaSets. Describe the desired state
+metadata: # 
+  labels:
+    app.kubernetes.io/name: load-balancer-example # label for the deployment
+  name: hello-world # the name of the deployment
+spec:
+  replicas: 5 # the Deployment creates five replicated Pods
+  selector: # defines how the Deployment finds which Pods to manage
+    matchLabels: # select a label that is defined in the Pod template (app.kubernetes.io/name: load-balancer-example)
+      app.kubernetes.io/name: load-balancer-example
+  template: # Pod template
+    metadata:
+      labels: # label the Pod
+        app.kubernetes.io/name: load-balancer-example
+    spec:
+      containers: # Pod runs one container
+        - image: gcr.io/google-samples/node-hello:1.0 # which runs the node-hello image
+          name: hello-world # name of the container
+          ports:
+            - containerPort: 8080
+```
+
+## Create AKS Cluster
+```bash
+az login
+az account list --output table
+az account set --subscription "Visual Studio Enterprise"
+az group create -l eastus -n OmarResourceGroup
+az aks create -g OmarResourceGroup -n OmarManagedCluster
+az aks get-credentials --resource-group OmarResourceGroup --name OmarManagedCluster
+kubectl get nodes
 ```
