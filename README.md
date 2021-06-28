@@ -43,7 +43,7 @@ You can also run the applications by using the instructions located in their `Do
 
 https://kubernetes.io/docs/reference/kubectl/cheatsheet/
 
-## Command Reference
+## kubectl Cheat Sheet
 ```bash
 minikube start
 minikube dashboard
@@ -98,5 +98,14 @@ export NODE_PORT=$(kubectl get services/kubernetes-bootcamp -o go-template='{{(i
 echo NODE_PORT=$NODE_PORT
 curl $(minikube ip):$NODE_PORT # curl to the exposed IP and port. Execute the command multiple times. We hit a different Pod with every request. This demonstrates that the load-balancing is working
 
-
+# Updating
+kubectl get deployments # list deployments
+kubectl get pods # view running pods
+kubectl describe pods # view current image version of the app
+kubectl set image deployment/frontend www=image:v2 # rolling update "www" containers of "frontend" deployment, updating the image
+kubectl get pods # check the status of the new pods
+kubectl rollout status deployments/kubernetes-bootcamp # confirm the update
+kubectl rollout status -w deployment/frontend # watch rolling update status of "frontend" deployment until completion
+kubectl describe pods # view current image version
+kubectl rollout undo deployments/kubernetes-bootcamp # rollback to the previous deployment
 ```
