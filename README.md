@@ -16,9 +16,10 @@ You should be able to make requests to localhost:5106 for the Web project, and l
 You can also run the applications by using the instructions located in their `Dockerfile` file in the root of each project. Again, run these commands from the root of the solution (where the .sln file is located).
 
 ## Planned features
+- Deployment
+- Service with LoadBalancer
 - Minikube
 - Draft
-- Service with LoadBalancer
 - Healthchecks
 - Secrets
 - Volumes
@@ -56,29 +57,46 @@ kubectl version
 kubectl config view # view kubectl configuration
 kubectl cluster-info
 
-kubectl get po -A
+kubectl get pods # list all pods in non-kubernetes namespaces
+kubectl get pods -A # list all pods in all namespaces
+kubectl get pods -l <label> # get pods with specified label
 kubectl get nodes
-kubectl create deployment hello-minikube --image=k8s.gcr.io/echoserver:1.4
 kubectl get deployments
-kubectl expose deployment hello-minikube --type=NodePort --port=8080 # make container accessible from outside the Kubernetes virtual network
+kubectl get services
+kubectl get services <deployment-name>
+kubectl get services -l <label>
+kubectl delete service -l <label>
+kubectl create deployment hello-minikube --image=k8s.gcr.io/echoserver:1.4 # create a deployment object
+kubectl expose deployment hello-minikube --type=NodePort --port=8080 # makes the container accessible from outside the Kubernetes virtual network
+kubectl delete deployment hello-node
 kubectl port-forward service/hello-minikube 7080:8080 # alternative to service
 kubectl proxy # forward traffic into cluster-wide, private network
-kubectl get services <deployment-name>
 kubectl describe pod <pod-id>
+kubectl describe <service> # find out what port was opened externally
+kubectl describe deployment # see the name of the label created
 kubectl get events # view cluster events
-kubectl delete deployment hello-node
+kubectl label pods <pod-name> <label> # apply a new label to a pod
 
-export POD_NAME=$(kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}') #  get the Pod name, and we'll store in the environment variable POD_NAME
+export POD_NAME=$(kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}') # get the Pod name, and we'll store in the environment variable POD_NAME
 echo Name of the Pod: $POD_NAME
 # access the Pod through the API by running:
 curl http://localhost:8001/api/v1/namespaces/default/pods/$POD_NAME/
+
+kubectl exec -ti $POD_NAME -- curl localhost:8080 # run a command inside a pod
 
 # Troubleshooting
 kubectl get # list resources
 kubectl describe pods # show what containers are inside a pod and what images are used
 kubectl logs # print the logs from a container in a pod
 kubectl exec # execute a command on a container in a pod
-
 kubectl exec $POD_NAME bash # execute commands on the container
+
+# Scaling out
+kubectl get rs # get ReplicaSet
+kubectl scale <deployment> --replicas=4
+export NODE_PORT=$(kubectl get services/kubernetes-bootcamp -o go-template='{{(index .spec.ports 0).nodePort}}')
+echo NODE_PORT=$NODE_PORT
+curl $(minikube ip):$NODE_PORT # curl to the exposed IP and port. Execute the command multiple times. We hit a different Pod with every request. This demonstrates that the load-balancing is working
+
 
 ```
