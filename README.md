@@ -42,6 +42,7 @@ You can also run the applications by using the instructions located in their `Do
 
 https://kubernetes.io/docs/reference/kubectl/cheatsheet/
 
+## Command Reference
 ```bash
 minikube start
 minikube dashboard
