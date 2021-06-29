@@ -125,6 +125,15 @@ kubectl rollout undo deployments/kubernetes-bootcamp # rollback to the previous 
 
 # Logging
 kubectl logs -f deployment/redis-leader
+
+# Kustomize
+kubectl kustomize <kustomization_directory> # view Resources found in a directory containing a kustomization file
+kubectl apply -k <kustomization_directory> # apply resources
+kubectl kustomize ./ # generate resources
+kubectl apply -k ./ # apply changes
+kubectl get -k ./ # view the deployment object
+kubectl diff -k ./ # preview changes
+kubectl delete -k ./ # delete deployment object
 ```
 
 ## Deployment
@@ -152,7 +161,7 @@ spec:
             - containerPort: 8080
 ```
 
-## Create AKS Cluster
+## Creating the AKS Cluster
 ```bash
 az login
 az account list --output table
@@ -162,3 +171,14 @@ az aks create -g OmarResourceGroup -n OmarManagedCluster
 az aks get-credentials --resource-group OmarResourceGroup --name OmarManagedCluster
 kubectl get nodes
 ```
+
+## Pushing the image to Docker Hub and deploying
+1. Create the repository in Docker Hub onegronm/eshoponweb
+2. Login to Docker Hub through the Docker Desktop client or by running ```docker login```
+3. Run ```cd C:\Data\Code\eshoponweb```
+4. Run ```docker build --pull -t onegronm/eshoponweb -f src/Web/Dockerfile .```
+5. Run ```docker push onegronm/eshoponweb```
+6. Run ```cd eshoponweb/kubernetes```
+7. Run ```kubectl apply -k ./```
+8. Run ```kubectl get service eshoponweb``` and take note of the external IP address and port on the LoadBalancer
+9. Open the external IP in the web browser

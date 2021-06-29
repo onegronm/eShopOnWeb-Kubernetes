@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: eshoponweb
+  labels:
+    app: eshoponweb
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: eshoponweb
+    tier: frontend
+  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eshoponweb
+  labels:
+    app: eshoponweb
+spec:
+  selector:
+    matchLabels:
+      app: eshoponweb
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: eshoponweb
+        tier: frontend
+    spec:
+      containers:
+      - image: onegronm/eshoponweb
+        name: eshoponwebmvc
+        ports:
+          - containerPort: 80
