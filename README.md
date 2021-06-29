@@ -16,9 +16,9 @@ You should be able to make requests to localhost:5106 for the Web project, and l
 You can also run the applications by using the instructions located in their `Dockerfile` file in the root of each project. Again, run these commands from the root of the solution (where the .sln file is located).
 
 ## Planned features
-- Deployment
-- Service with LoadBalancer
-- Minikube
+- Deployment DONE
+- Service with LoadBalancer DONE
+- Minikube DONE
 - Draft
 - Healthchecks
 - Secrets
@@ -39,7 +39,7 @@ You can also run the applications by using the instructions located in their `Do
 - Helm Repository
 - Flux
 - Terraform
-- AKS
+- AKS DONE
 
 https://kubernetes.io/docs/reference/kubectl/cheatsheet/
 
