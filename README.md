@@ -198,6 +198,9 @@ kubectl get nodes
 10. Connect to the SQL Server instance in SSMS using the external Ip address from the pod
 
 ## Creating the databases
+
+https://docs.microsoft.com/en-us/sql/linux/tutorial-sql-server-containers-kubernetes?view=sql-server-ver15
+
 1. Update Startup.cs's ConfigureDevelopmentServices method as follows:
 ```csharp
 public void ConfigureDevelopmentServices(IServiceCollection services)
