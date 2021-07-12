@@ -14,19 +14,23 @@ You should be able to make requests to localhost:5106 for the Web project, and l
 
 You can also run the applications by using the instructions located in their `Dockerfile` file in the root of each project. Again, run these commands from the root of the solution (where the .sln file is located).
 
-## Planned features
-- Deployment DONE
-- Service with LoadBalancer DONE
-- Minikube DONE
-- Draft
+## Features
+- Deployment object OK
+- Configure service with LoadBalancer OK
+- Minikube for local development OK
 - Healthchecks
-- Secrets
-- Volumes
-- WebUI
+- Secrets OK
+- Volumes OK
+- Persistent Volume OK
+- Persistent Volume Claim OK
+- SQL Server container OK
+- AKS deployment OK
+- Access WebUI
 - ConfigMap
 - Ingress Controller
 - Pod Presets
 - StatefulSet
+- ReplicaSet
 - DeamonSet
 - Resoure usage monitoring
 - Autoscaling
@@ -38,7 +42,6 @@ You can also run the applications by using the instructions located in their `Do
 - Helm Repository
 - Flux
 - Terraform
-- AKS DONE
 
 https://kubernetes.io/docs/reference/kubectl/cheatsheet/
 
@@ -184,7 +187,7 @@ kubectl get nodes
 
 ## Deploying a SQL Server container
 1. Create SA password by running ```kubectl create secret generic mssql --from-literal=SA_PASSWORD="MyC0m9l&xP@ssw0rd"```
-2. Create a manifest to define the storage class and the persistent volume claim (pvc.yaml). The storage class provisioner is azure-disk, because this Kubernetes cluster is in Azure.
+2. Create a manifest to define the storage class and the persistent volume claim (pvc.yaml). The storage class provisioner is azure-disk, because this Kubernetes cluster is in Azure
 3. Run ```cd eshoponweb/kubernetes```
 4. Run ```kubectl apply -k ./```
 5. Verify the PVC with ```kubectl describe pvc mssql-data```. The returned metadata includes a value called Volume. This value maps to the name of the blob. The value for volume matches part of the name of the blob in the image from the Azure portal.
@@ -193,3 +196,34 @@ kubectl get nodes
 8. Run ```kubectl apply -k ./```
 9. Verify the services are running. Run the following command ```kubectl get services```
 10. Connect to the SQL Server instance in SSMS using the external Ip address from the pod
+
+## Creating the databases
+1. Update Startup.cs's ConfigureDevelopmentServices method as follows:
+```csharp
+public void ConfigureDevelopmentServices(IServiceCollection services)
+{
+    // use in-memory database
+    //ConfigureTestingServices(services);
+
+    // use real database
+    ConfigureProductionServices(services);
+
+}
+```
+2. Ensure connection strings in appsettings.json point to sql container in azure
+```yaml
+"ConnectionStrings": {
+    "CatalogConnection": "Server=20.81.109.96;User=sa;Password=MyC0m9l&xP@ssw0rd;Database=CatalogDb;",
+    "IdentityConnection": "Server=20.81.109.96;User=sa;Password=MyC0m9l&xP@ssw0rd;Database=Identity;"
+  }
+```
+3. Open a command prompt in the Web folder and execute the following commands:
+```bash
+dotnet restore
+dotnet tool restore
+dotnet ef database update -c catalogcontext -p ../Infrastructure/Infrastructure.csproj -s Web.csproj
+dotnet ef database update -c appidentitydbcontext -p ../Infrastructure/Infrastructure.csproj -s Web.csproj
+```
+These commands will create two separate databases, one for the store's catalog data and shopping cart information, and one for the app's user credentials and identity data
+4. Run the application: ```docker compose up -d --build``` and open http://localhost:5106/ in a browser. You should be able to make requests to localhost:5106 for the Web project, and localhost:5200
+5. You should be able to log in using the demouser@microsoft.com account with password Pass@word1
