@@ -175,8 +175,8 @@ kubectl get nodes
 1. Create the repository in Docker Hub onegronm/eshoponweb
 2. Login to Docker Hub through the Docker Desktop client or by running ```docker login```
 3. Run ```cd C:\Data\Code\eshoponweb```
-4. Run ```docker build --pull -t onegronm/eshoponweb -f src/Web/Dockerfile .```
-5. Run ```docker push onegronm/eshoponweb```
+4. Run ```docker build --pull -t onegronm/eshoponweb:v1.0 -f src/Web/Dockerfile .```
+5. Run ```docker push onegronm/eshoponweb:v1.0```
 6. Run ```cd eshoponweb/kubernetes```
 7. Run ```kubectl apply -k ./```
 8. Run ```kubectl get service eshoponweb``` and take note of the external IP address and port on the LoadBalancer
