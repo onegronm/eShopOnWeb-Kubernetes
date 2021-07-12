@@ -32,7 +32,7 @@ spec:
         tier: frontend
     spec:
       containers:
-      - image: onegronm/eshoponweb
+      - image: onegronm/eshoponweb:latest
         name: eshoponwebmvc
         ports:
           - containerPort: 80
