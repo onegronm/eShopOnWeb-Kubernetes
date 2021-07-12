@@ -1,6 +1,6 @@
 # Microsoft eShopOnWeb ASP.NET Core Reference Application on Kubernetes
 
-Sample ASP.NET Core reference application, powered by Microsoft, demonstrating deployment of a single-process (monolithic) application to a Kubernetes cluster.
+I took the sample ASP.NET Core reference application to demonstrate the deployment of a single-process (monolithic) application to a Kubernetes cluster.
 
 ## Running the sample using Docker
 
@@ -43,9 +43,102 @@ You can also run the applications by using the instructions located in their `Do
 - Flux
 - Terraform
 
-https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+## Creating the AKS Cluster
+```bash
+az login
+az account list --output table
+az account set --subscription "Visual Studio Enterprise"
+az group create -l eastus -n OmarResourceGroup
+az aks create -g OmarResourceGroup -n OmarManagedCluster
+az aks get-credentials --resource-group OmarResourceGroup --name OmarManagedCluster
+kubectl get nodes
+```
+
+## Pushing the image to Docker Hub and deploying
+1. Create the repository in Docker Hub onegronm/eshoponweb
+2. Login to Docker Hub through the Docker Desktop client or by running ```docker login```
+3. Run ```cd C:\Data\Code\eshoponweb```
+4. Run ```docker build --pull -t onegronm/eshoponweb:v1.0 -f src/Web/Dockerfile .```
+5. Run ```docker push onegronm/eshoponweb:v1.0```
+6. Run ```cd eshoponweb/kubernetes```
+7. Run ```kubectl apply -k ./```
+8. Run ```kubectl get service eshoponweb``` and take note of the external IP address and port on the LoadBalancer
+9. Open the external IP in the web browser
+
+## Deploying a SQL Server container
+1. Create SA password by running ```kubectl create secret generic mssql --from-literal=SA_PASSWORD="MyC0m9l&xP@ssw0rd"```
+2. Create a manifest to define the storage class and the persistent volume claim (pvc.yaml). The storage class provisioner is azure-disk, because this Kubernetes cluster is in Azure
+3. Run ```cd eshoponweb/kubernetes```
+4. Run ```kubectl apply -k ./```
+5. Verify the PVC with ```kubectl describe pvc mssql-data```. The returned metadata includes a value called Volume. This value maps to the name of the blob. The value for volume matches part of the name of the blob in the image from the Azure portal.
+6. Verify the Persitent Volume with ```kubectl describe pv```
+7. Create a manifest to describe the container based on the SQL Server mssql-server-linux Docker image (sql-deployment.yaml)
+8. Run ```kubectl apply -k ./```
+9. Verify the services are running. Run the following command ```kubectl get services```
+10. Connect to the SQL Server instance in SSMS using the external Ip address from the pod
+
+## Creating the databases
+1. Update Startup.cs's ConfigureDevelopmentServices method as follows:
+```csharp
+public void ConfigureDevelopmentServices(IServiceCollection services)
+{
+    // use in-memory database
+    //ConfigureTestingServices(services);
+
+    // use real database
+    ConfigureProductionServices(services);
+
+}
+```
+
+2. Ensure connection strings in appsettings.json point to sql container in azure
+```yaml
+"ConnectionStrings": {
+    "CatalogConnection": "Server=20.81.109.96;User=sa;Password=MyC0m9l&xP@ssw0rd;Database=CatalogDb;",
+    "IdentityConnection": "Server=20.81.109.96;User=sa;Password=MyC0m9l&xP@ssw0rd;Database=Identity;"
+  }
+```
+
+3. Open a command prompt in the Web folder and execute the following commands:
+```bash
+dotnet restore
+dotnet tool restore
+dotnet ef database update -c catalogcontext -p ../Infrastructure/Infrastructure.csproj -s Web.csproj
+dotnet ef database update -c appidentitydbcontext -p ../Infrastructure/Infrastructure.csproj -s Web.csproj
+```
+These commands will create two separate databases, one for the store's catalog data and shopping cart information, and one for the app's user credentials and identity data
+
+4. Run the application: ```docker compose up -d --build``` and open http://localhost:5106/ in a browser. You should be able to make requests to localhost:5106 for the Web project, and localhost:5200
+
+5. You should be able to log in using the demouser@microsoft.com account with password Pass@word1
+
+## Deployment manifest reference
+```yaml
+apiVersion: apps/v1
+kind: Deployment # provides declarative updates for Pods and ReplicaSets. Describe the desired state
+metadata: # 
+  labels:
+    app.kubernetes.io/name: load-balancer-example # label for the deployment
+  name: hello-world # the name of the deployment
+spec:
+  replicas: 5 # the Deployment creates five replicated Pods
+  selector: # defines how the Deployment finds which Pods to manage
+    matchLabels: # select a label that is defined in the Pod template (app.kubernetes.io/name: load-balancer-example)
+      app.kubernetes.io/name: load-balancer-example
+  template: # Pod template
+    metadata:
+      labels: # label the Pod
+        app.kubernetes.io/name: load-balancer-example
+    spec:
+      containers: # Pod runs one container
+        - image: gcr.io/google-samples/node-hello:1.0 # which runs the node-hello image
+          name: hello-world # name of the container
+          ports:
+            - containerPort: 8080
+```
 
 ## kubectl Cheat Sheet
+https://kubernetes.io/docs/reference/kubectl/cheatsheet/
 ```bash
 minikube start
 minikube dashboard
@@ -137,96 +230,3 @@ kubectl get -k ./ # view the deployment object
 kubectl diff -k ./ # preview changes
 kubectl delete -k ./ # delete deployment object
 ```
-
-## Deployment
-```yaml
-apiVersion: apps/v1
-kind: Deployment # provides declarative updates for Pods and ReplicaSets. Describe the desired state
-metadata: # 
-  labels:
-    app.kubernetes.io/name: load-balancer-example # label for the deployment
-  name: hello-world # the name of the deployment
-spec:
-  replicas: 5 # the Deployment creates five replicated Pods
-  selector: # defines how the Deployment finds which Pods to manage
-    matchLabels: # select a label that is defined in the Pod template (app.kubernetes.io/name: load-balancer-example)
-      app.kubernetes.io/name: load-balancer-example
-  template: # Pod template
-    metadata:
-      labels: # label the Pod
-        app.kubernetes.io/name: load-balancer-example
-    spec:
-      containers: # Pod runs one container
-        - image: gcr.io/google-samples/node-hello:1.0 # which runs the node-hello image
-          name: hello-world # name of the container
-          ports:
-            - containerPort: 8080
-```
-
-## Creating the AKS Cluster
-```bash
-az login
-az account list --output table
-az account set --subscription "Visual Studio Enterprise"
-az group create -l eastus -n OmarResourceGroup
-az aks create -g OmarResourceGroup -n OmarManagedCluster
-az aks get-credentials --resource-group OmarResourceGroup --name OmarManagedCluster
-kubectl get nodes
-```
-
-## Pushing the image to Docker Hub and deploying
-1. Create the repository in Docker Hub onegronm/eshoponweb
-2. Login to Docker Hub through the Docker Desktop client or by running ```docker login```
-3. Run ```cd C:\Data\Code\eshoponweb```
-4. Run ```docker build --pull -t onegronm/eshoponweb:v1.0 -f src/Web/Dockerfile .```
-5. Run ```docker push onegronm/eshoponweb:v1.0```
-6. Run ```cd eshoponweb/kubernetes```
-7. Run ```kubectl apply -k ./```
-8. Run ```kubectl get service eshoponweb``` and take note of the external IP address and port on the LoadBalancer
-9. Open the external IP in the web browser
-
-## Deploying a SQL Server container
-1. Create SA password by running ```kubectl create secret generic mssql --from-literal=SA_PASSWORD="MyC0m9l&xP@ssw0rd"```
-2. Create a manifest to define the storage class and the persistent volume claim (pvc.yaml). The storage class provisioner is azure-disk, because this Kubernetes cluster is in Azure
-3. Run ```cd eshoponweb/kubernetes```
-4. Run ```kubectl apply -k ./```
-5. Verify the PVC with ```kubectl describe pvc mssql-data```. The returned metadata includes a value called Volume. This value maps to the name of the blob. The value for volume matches part of the name of the blob in the image from the Azure portal.
-6. Verify the Persitent Volume with ```kubectl describe pv```
-7. Create a manifest to describe the container based on the SQL Server mssql-server-linux Docker image (sql-deployment.yaml)
-8. Run ```kubectl apply -k ./```
-9. Verify the services are running. Run the following command ```kubectl get services```
-10. Connect to the SQL Server instance in SSMS using the external Ip address from the pod
-
-## Creating the databases
-
-https://docs.microsoft.com/en-us/sql/linux/tutorial-sql-server-containers-kubernetes?view=sql-server-ver15
-
-1. Update Startup.cs's ConfigureDevelopmentServices method as follows:
-```csharp
-public void ConfigureDevelopmentServices(IServiceCollection services)
-{
-    // use in-memory database
-    //ConfigureTestingServices(services);
-
-    // use real database
-    ConfigureProductionServices(services);
-
-}
-```
-2. Ensure connection strings in appsettings.json point to sql container in azure
-```yaml
-"ConnectionStrings": {
-    "CatalogConnection": "Server=20.81.109.96;User=sa;Password=MyC0m9l&xP@ssw0rd;Database=CatalogDb;",
-    "IdentityConnection": "Server=20.81.109.96;User=sa;Password=MyC0m9l&xP@ssw0rd;Database=Identity;"
-  }
-```
-3. Open a command prompt in the Web folder and execute the following commands:
-```bash
-dotnet restore
-dotnet tool restore
-dotnet ef database update -c catalogcontext -p ../Infrastructure/Infrastructure.csproj -s Web.csproj
-dotnet ef database update -c appidentitydbcontext -p ../Infrastructure/Infrastructure.csproj -s Web.csproj
-```
-These commands will create two separate databases, one for the store's catalog data and shopping cart information, and one for the app's user credentials and identity data
-4. Run the application: ```docker compose up -d --build``` and open http://localhost:5106/ in a browser. You should be able to make requests to localhost:5106 for the Web project, and localhost:5200
-5. You should be able to log in using the demouser@microsoft.com account with password Pass@word1
