@@ -138,31 +138,6 @@ kubectl diff -k ./ # preview changes
 kubectl delete -k ./ # delete deployment object
 ```
 
-## Deployment
-```yaml
-apiVersion: apps/v1
-kind: Deployment # provides declarative updates for Pods and ReplicaSets. Describe the desired state
-metadata: # 
-  labels:
-    app.kubernetes.io/name: load-balancer-example # label for the deployment
-  name: hello-world # the name of the deployment
-spec:
-  replicas: 5 # the Deployment creates five replicated Pods
-  selector: # defines how the Deployment finds which Pods to manage
-    matchLabels: # select a label that is defined in the Pod template (app.kubernetes.io/name: load-balancer-example)
-      app.kubernetes.io/name: load-balancer-example
-  template: # Pod template
-    metadata:
-      labels: # label the Pod
-        app.kubernetes.io/name: load-balancer-example
-    spec:
-      containers: # Pod runs one container
-        - image: gcr.io/google-samples/node-hello:1.0 # which runs the node-hello image
-          name: hello-world # name of the container
-          ports:
-            - containerPort: 8080
-```
-
 ## Creating the AKS Cluster
 ```bash
 az login
@@ -231,3 +206,28 @@ These commands will create two separate databases, one for the store's catalog d
 4. Run the application: ```docker compose up -d --build``` and open http://localhost:5106/ in a browser. You should be able to make requests to localhost:5106 for the Web project, and localhost:5200
 
 5. You should be able to log in using the demouser@microsoft.com account with password Pass@word1
+
+## Deployment manifest reference
+```yaml
+apiVersion: apps/v1
+kind: Deployment # provides declarative updates for Pods and ReplicaSets. Describe the desired state
+metadata: # 
+  labels:
+    app.kubernetes.io/name: load-balancer-example # label for the deployment
+  name: hello-world # the name of the deployment
+spec:
+  replicas: 5 # the Deployment creates five replicated Pods
+  selector: # defines how the Deployment finds which Pods to manage
+    matchLabels: # select a label that is defined in the Pod template (app.kubernetes.io/name: load-balancer-example)
+      app.kubernetes.io/name: load-balancer-example
+  template: # Pod template
+    metadata:
+      labels: # label the Pod
+        app.kubernetes.io/name: load-balancer-example
+    spec:
+      containers: # Pod runs one container
+        - image: gcr.io/google-samples/node-hello:1.0 # which runs the node-hello image
+          name: hello-world # name of the container
+          ports:
+            - containerPort: 8080
+```
