@@ -210,6 +210,7 @@ public void ConfigureDevelopmentServices(IServiceCollection services)
 
 }
 ```
+
 2. Ensure connection strings in appsettings.json point to sql container in azure
 ```yaml
 "ConnectionStrings": {
@@ -217,6 +218,7 @@ public void ConfigureDevelopmentServices(IServiceCollection services)
     "IdentityConnection": "Server=20.81.109.96;User=sa;Password=MyC0m9l&xP@ssw0rd;Database=Identity;"
   }
 ```
+
 3. Open a command prompt in the Web folder and execute the following commands:
 ```bash
 dotnet restore
@@ -225,5 +227,7 @@ dotnet ef database update -c catalogcontext -p ../Infrastructure/Infrastructure.
 dotnet ef database update -c appidentitydbcontext -p ../Infrastructure/Infrastructure.csproj -s Web.csproj
 ```
 These commands will create two separate databases, one for the store's catalog data and shopping cart information, and one for the app's user credentials and identity data
+
 4. Run the application: ```docker compose up -d --build``` and open http://localhost:5106/ in a browser. You should be able to make requests to localhost:5106 for the Web project, and localhost:5200
+
 5. You should be able to log in using the demouser@microsoft.com account with password Pass@word1
