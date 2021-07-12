@@ -181,3 +181,15 @@ kubectl get nodes
 7. Run ```kubectl apply -k ./```
 8. Run ```kubectl get service eshoponweb``` and take note of the external IP address and port on the LoadBalancer
 9. Open the external IP in the web browser
+
+## Deploying a SQL Server container
+1. Create SA password by running ```kubectl create secret generic mssql --from-literal=SA_PASSWORD="MyC0m9l&xP@ssw0rd"```
+2. Create a manifest to define the storage class and the persistent volume claim (pvc.yaml). The storage class provisioner is azure-disk, because this Kubernetes cluster is in Azure.
+3. Run ```cd eshoponweb/kubernetes```
+4. Run ```kubectl apply -k ./```
+5. Verify the PVC with ```kubectl describe pvc mssql-data```. The returned metadata includes a value called Volume. This value maps to the name of the blob. The value for volume matches part of the name of the blob in the image from the Azure portal.
+6. Verify the Persitent Volume with ```kubectl describe pv```
+7. Create a manifest to describe the container based on the SQL Server mssql-server-linux Docker image (sql-deployment.yaml)
+8. Run ```kubectl apply -k ./```
+9. Verify the services are running. Run the following command ```kubectl get services```
+10. Connect to the SQL Server instance in SSMS using the external Ip address from the pod
