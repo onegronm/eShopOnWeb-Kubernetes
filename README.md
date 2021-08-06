@@ -26,13 +26,14 @@ You can also run the applications by using the instructions located in their `Do
 - SQL Server container OK
 - AKS deployment OK
 - Access the Web UI (deprecated in Azure. See the Workloads section instead)
-- ConfigMap
+- ConfigMap OK
 - Ingress Controller
 - Pod Presets
 - StatefulSet
 - ReplicaSet
 - DeamonSet
 - Resoure usage monitoring
+- Resource quotas
 - Autoscaling
 - Namespace 
 - Namespace quota
@@ -229,6 +230,10 @@ kubectl apply -k ./ # apply changes
 kubectl get -k ./ # view the deployment object
 kubectl diff -k ./ # preview changes
 kubectl delete -k ./ # delete deployment object
+
+# ConfigMap
+kubectl get configmap
+kubectl get configmap <name> -o yaml
 ```
 
 ## Troubleshooting

@@ -2,3 +2,4 @@ resources:
   - eshoponweb-deployment.yaml
   - pvc.yaml
   - sql-deployment.yaml
+  - configmap-demo.yaml
