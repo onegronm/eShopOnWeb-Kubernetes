@@ -18,14 +18,14 @@ You can also run the applications by using the instructions located in their `Do
 - Deployment object OK
 - Configure service with LoadBalancer OK
 - Minikube for local development OK
-- Healthchecks
+- Healthchecks  (liveness probe using an HTTP GET request)
 - Secrets OK
 - Volumes OK
 - Persistent Volume OK
 - Persistent Volume Claim OK
 - SQL Server container OK
 - AKS deployment OK
-- Access WebUI
+- Access the Web UI (deprecated in Azure. See the Workloads section instead)
 - ConfigMap
 - Ingress Controller
 - Pod Presets
@@ -230,3 +230,7 @@ kubectl get -k ./ # view the deployment object
 kubectl diff -k ./ # preview changes
 kubectl delete -k ./ # delete deployment object
 ```
+
+## Troubleshooting
+1. Nodes in NotReady status
+In Azure, do Node pools > Update image
