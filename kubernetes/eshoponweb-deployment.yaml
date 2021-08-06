@@ -42,13 +42,13 @@ spec:
             port: 80
           initialDelaySeconds: 15
           timeoutSeconds: 30
-        resources:
-          requests:
-            memory: "10Gi"
-            cpu: "500m"
-          limits:
-            memory: "10Gi"
-            cpu: "500m"
+        # resources:
+        #   requests:
+        #     memory: "10Gi"
+        #     cpu: "500m"
+        #   limits:
+        #     memory: "10Gi"
+        #     cpu: "500m"
         env:
           # Define the environment variable
           - name: ENVIRONMENT_NAME # Notice that the case is different here from the key name in the ConfigMap.
