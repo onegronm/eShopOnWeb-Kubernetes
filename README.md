@@ -213,6 +213,7 @@ kubectl delete deployment hello-world
 kubectl get pods # view running pods
 kubectl describe pods # view current image version of the app
 kubectl set image deployment/frontend www=image:v2 # rolling update "www" containers of "frontend" deployment, updating the image
+kubectl rollout restart deployment deployment/frontend # restart deployment
 kubectl get pods # check the status of the new pods
 kubectl rollout status deployments/kubernetes-bootcamp # confirm the update
 kubectl rollout status -w deployment/frontend # watch rolling update status of "frontend" deployment until completion
