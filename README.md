@@ -2,18 +2,6 @@
 
 I took the sample ASP.NET Core reference application to demonstrate the deployment of a single-process (monolithic) application to a Kubernetes cluster.
 
-## Building the sample using Docker
-
-You can run the Web sample by running these commands from the root folder (where the .sln file is located):
-
-```
-docker-compose up -d --build
-```
-
-You should be able to make requests to localhost:5106 for the Web project, and localhost:5200 for the Public API project once these commands complete. If you have any problems, especially with login, try from a new guest or incognito browser instance.
-
-You can also run the applications by using the instructions located in their `Dockerfile` file in the root of each project. Again, run these commands from the root of the solution (where the .sln file is located).
-
 ## Kubernetes Features
 - Deployment object OK
 - Configure service with LoadBalancer OK
@@ -43,6 +31,18 @@ You can also run the applications by using the instructions located in their `Do
 - Helm Repository
 - Flux
 - Terraform
+
+## Building the sample using Docker
+
+You can run the Web sample by running these commands from the root folder (where the .sln file is located):
+
+```
+docker-compose up -d --build
+```
+
+You should be able to make requests to localhost:5106 for the Web project, and localhost:5200 for the Public API project once these commands complete. If you have any problems, especially with login, try from a new guest or incognito browser instance.
+
+You can also run the applications by using the instructions located in their `Dockerfile` file in the root of each project. Again, run these commands from the root of the solution (where the .sln file is located).
 
 ## Creating the AKS Cluster
 ```bash
