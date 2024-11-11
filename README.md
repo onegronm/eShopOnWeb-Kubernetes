@@ -2,7 +2,7 @@
 
 I took the sample ASP.NET Core reference application to demonstrate the deployment of a single-process (monolithic) application to a Kubernetes cluster.
 
-## Running the sample using Docker
+## Building the sample using Docker
 
 You can run the Web sample by running these commands from the root folder (where the .sln file is located):
 
@@ -14,7 +14,7 @@ You should be able to make requests to localhost:5106 for the Web project, and l
 
 You can also run the applications by using the instructions located in their `Dockerfile` file in the root of each project. Again, run these commands from the root of the solution (where the .sln file is located).
 
-## Features
+## Kubernetes Features
 - Deployment object OK
 - Configure service with LoadBalancer OK
 - Minikube for local development OK
