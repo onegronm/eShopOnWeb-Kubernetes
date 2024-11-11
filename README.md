@@ -141,18 +141,12 @@ spec:
 ## kubectl Cheat Sheet
 https://kubernetes.io/docs/reference/kubectl/cheatsheet/
 ```bash
-minikube start
-minikube dashboard
-minikube service <service-name> # launches a web browser for you
-minikube pause
-minikube stop
-minikube config set memory 16384 # increase default memory limit
-minikube addons list
-
 kubectl version
 kubectl config view # view kubectl configuration
 kubectl cluster-info
-
+kubectl config get-contexts
+kubectl config use-context <context_name> # switch context
+kubectl get service <service_name> –watch
 kubectl get pods # list all pods in non-kubernetes namespaces
 kubectl get pods -A # list all pods in all namespaces
 kubectl get pods -l <label> # get pods with specified label
@@ -193,11 +187,13 @@ kubectl exec $POD_NAME bash # execute commands on the container
 # Scaling out
 kubectl get rs # get ReplicaSet
 kubectl scale deployment <deployment> --replicas=4
+kubectl autoscale deployment <name> --cpu-percent=50 --min=3 --max=10 # the autoscaler increases the pods up to a maximum of 10 instances and a minimum of 3 instances
 export NODE_PORT=$(kubectl get services/kubernetes-bootcamp -o go-template='{{(index .spec.ports 0).nodePort}}')
 echo NODE_PORT=$NODE_PORT
 curl $(minikube ip):$NODE_PORT # curl to the exposed IP and port. Execute the command multiple times. We hit a different Pod with every request. This demonstrates that the load-balancing is working
 
 # Simple deployment
+kubectl get pods # monitor the deployment
 kubectl apply -f https://k8s.io/examples/service/load-balancer-example.yaml
 kubectl get deployments # list deployments
 kubectl describe deployments <name>
