@@ -28,9 +28,41 @@ spec:
     tier: frontend
   type: LoadBalancer
 ```
-- Healthchecks OK (liveness probe using an HTTP GET request)
-- Secrets OK
-- Volumes OK
+- Healthchecks (liveness probe using an HTTP GET request)
+```yaml
+livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 15
+          timeoutSeconds: 30
+```
+- Secrets
+- Volumes
+```yaml
+containers:
+  - image: onegronm/eshoponweb:v1.1
+    name: eshoponwebmvc
+    ports:
+    livenessProbe:
+    env:
+      volumeMounts: # you can also mount a ConfigMap as a data volume inside a container
+                - name: config
+                  mountPath: "/config"
+                  readOnly: true
+volumes:
+# You set volumes at the Pod level, then mount them into containers inside that Pod
+- name: config
+  configMap:
+    # Provide the name of the ConfigMap you want to mount.
+    name: configmap-demo
+    # An array of keys from the ConfigMap to create as files. This creates two files. If you omit the items array entirely, every key in the ConfigMap becomes a file with the same name as the key, and you get 4 files
+    items:
+    - key: "app.properties"
+      path: "app.properties"
+    - key: "user-interface.properties"
+      path: "user-interface.properties"
+```
 - Persistent Volume OK
 - Persistent Volume Claim OK
 - SQL Server container OK
