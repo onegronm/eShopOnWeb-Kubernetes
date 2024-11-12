@@ -3,7 +3,15 @@
 I took the sample ASP.NET Core reference application to demonstrate the deployment of a single-process (monolithic) application to a Kubernetes cluster.
 
 ## Kubernetes Features
-- Deployment object OK
+- Deployment object
+```yaml
+kind: Deployment
+metadata:
+  name: eshoponweb
+  labels:
+    app: eshoponweb
+spec:...
+```
 - Configure service with LoadBalancer OK
 - Minikube for local development OK
 - Healthchecks OK (liveness probe using an HTTP GET request)
