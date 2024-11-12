@@ -12,8 +12,22 @@ metadata:
     app: eshoponweb
 spec:...
 ```
-- Configure service with LoadBalancer OK
-- Minikube for local development OK
+- Service with LoadBalancer
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: eshoponweb
+  labels:
+    app: eshoponweb
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: eshoponweb
+    tier: frontend
+  type: LoadBalancer
+```
 - Healthchecks OK (liveness probe using an HTTP GET request)
 - Secrets OK
 - Volumes OK
