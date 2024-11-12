@@ -31,11 +31,11 @@ spec:
 - Healthchecks (liveness probe using an HTTP GET request)
 ```yaml
 livenessProbe:
-          httpGet:
-            path: /
-            port: 80
-          initialDelaySeconds: 15
-          timeoutSeconds: 30
+  httpGet:
+    path: /
+    port: 80
+  initialDelaySeconds: 15
+  timeoutSeconds: 30
 ```
 - Secrets
 - Volumes
@@ -63,12 +63,91 @@ volumes:
     - key: "user-interface.properties"
       path: "user-interface.properties"
 ```
-- Persistent Volume OK
-- Persistent Volume Claim OK
-- SQL Server container OK
-- AKS deployment OK
-- Access the Web UI (deprecated in Azure. See the Workloads section instead)
-- ConfigMap OK
+- Persistent Volume
+- Persistent Volume Claim
+```yaml
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: mssql-data
+  annotations:
+    volume.beta.kubernetes.io/storage-class: azure-disk
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi
+```
+```yaml
+volumes:
+- name: mssqldb
+  persistentVolumeClaim:
+    claimName: mssql-data
+```
+- SQL Server container
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mssql-deployment
+spec:
+  replicas: 1
+  selector:
+     matchLabels:
+       app: mssql
+  template:
+    metadata:
+      labels:
+        app: mssql
+    spec:
+      terminationGracePeriodSeconds: 30
+      hostname: mssqlinst
+      securityContext:
+        fsGroup: 10001
+      containers:
+      - name: mssql
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        ports:
+        - containerPort: 1433
+        env:
+        - name: MSSQL_PID
+          value: "Developer"
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mssql
+              key: SA_PASSWORD 
+        volumeMounts:
+        - name: mssqldb
+          mountPath: /var/opt/mssql
+      volumes:
+      - name: mssqldb
+        persistentVolumeClaim:
+          claimName: mssql-data
+```
+- ConfigMap
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmap-demo
+data:
+  # property-like keys; each key maps to a simple value
+  environment_name: "dev"
+  ui_properties_file_name: "user-interface.properties"
+
+  # file-like keys (for creating files)
+  app.properties: |
+    products.types=slacks,mugs,shirts
+    cart.maximum-products=50   
+  user-interface.properties: |
+    color.banner=green
+    color.catalog=white
+    allow.textmode=true
+```
 - Ingress Controller
 - Pod Presets
 - StatefulSet
