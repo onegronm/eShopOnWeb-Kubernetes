@@ -140,59 +140,90 @@ spec:
 
 ## kubectl Cheat Sheet
 https://kubernetes.io/docs/reference/kubectl/cheatsheet/
+
+## kubectl Commands
 ```bash
 kubectl version
-kubectl config view # view kubectl configuration
 kubectl cluster-info
+kubectl config view # view kubectl configuration
 kubectl config get-contexts
 kubectl config use-context <context_name> # switch context
+
+# Services
 kubectl get service <service_name> –watch
-kubectl get pods # list all pods in non-kubernetes namespaces
-kubectl get pods -A # list all pods in all namespaces
-kubectl get pods -l <label> # get pods with specified label
-kubectl get pods --output=wide # get pods with local IPs
-kubectl get nodes
-kubectl get deployments
 kubectl get services
 kubectl get services <deployment-name>
 kubectl get services -l <label>
 kubectl delete service -l <label>
-kubectl create deployment hello-minikube --image=k8s.gcr.io/echoserver:1.4 # create a deployment object
-kubectl expose deployment hello-minikube --type=NodePort --port=8080 # makes the container accessible from outside the Kubernetes virtual network
-kubectl delete deployment hello-node
 kubectl port-forward service/hello-minikube 7080:8080 # alternative to service
-kubectl proxy # forward traffic into cluster-wide, private network
-kubectl describe pod <pod-id>
 kubectl describe <service> # find out what port was opened externally
-kubectl describe deployment # see the name of the label created
-kubectl get events # view cluster events
-kubectl label pods <pod-name> <label> # apply a new label to a pod
-kubectl get replicasets
-kubectl describe replicasets
 
+# Pods
+kubectl get pods # list all pods in non-kubernetes namespaces
+kubectl get pods -A # list all pods in all namespaces
+kubectl get pods -l <label> # get pods with specified label
+kubectl get pods --output=wide # get pods with local IPs
+kubectl describe pod <pod-id>
+kubectl label pods <pod-name> <label> # apply a new label to a pod
 export POD_NAME=$(kubectl get pods -o go-template --template '{{range .items}}{{.metadata.name}}{{"\n"}}{{end}}') # get the Pod name, and we'll store in the environment variable POD_NAME
 echo Name of the Pod: $POD_NAME
 # access the Pod through the API by running:
 curl http://localhost:8001/api/v1/namespaces/default/pods/$POD_NAME/
 
+# Nodes
+kubectl get nodes
+
+# Deployments
+kubectl get deployments
+kubectl create deployment hello-minikube --image=k8s.gcr.io/echoserver:1.4 # create a deployment object
+kubectl expose deployment hello-minikube --type=NodePort --port=8080 # makes the container accessible from outside the Kubernetes virtual network
+kubectl delete deployment hello-node
+kubectl describe deployment # see the name of the label created
+
+# Proxy
+kubectl proxy # forward traffic into cluster-wide, private network
+
+# Replica Sets
+kubectl get replicasets
+kubectl describe replicasets
+
+# Events
+kubectl get events # view cluster events
+
+# Exec
 kubectl exec -ti $POD_NAME -- curl localhost:8080 # run a command inside a pod
 
-# Troubleshooting
+# ConfigMap
+kubectl get configmap
+kubectl get configmap <name> -o yaml
+```
+
+## kubectl Recipes
+
+### Troubleshooting
+```bash
 kubectl get # list resources
 kubectl describe pods # show what containers are inside a pod and what images are used
 kubectl logs # print the logs from a container in a pod
 kubectl exec # execute a command on a container in a pod
 kubectl exec $POD_NAME bash # execute commands on the container
+```
 
-# Scaling out
+### Scaling out
+```bash
+kubectl scale --replicas=4 -f helloworld-replcontroller.yml 
+kubectl scale --replicas=4 <pod_name>
+kubectl delete <controller_name>
 kubectl get rs # get ReplicaSet
 kubectl scale deployment <deployment> --replicas=4
 kubectl autoscale deployment <name> --cpu-percent=50 --min=3 --max=10 # the autoscaler increases the pods up to a maximum of 10 instances and a minimum of 3 instances
 export NODE_PORT=$(kubectl get services/kubernetes-bootcamp -o go-template='{{(index .spec.ports 0).nodePort}}')
 echo NODE_PORT=$NODE_PORT
 curl $(minikube ip):$NODE_PORT # curl to the exposed IP and port. Execute the command multiple times. We hit a different Pod with every request. This demonstrates that the load-balancing is working
+```
 
-# Simple deployment
+### Simple deployment
+```bash
 kubectl get pods # monitor the deployment
 kubectl apply -f https://k8s.io/examples/service/load-balancer-example.yaml
 kubectl get deployments # list deployments
@@ -204,8 +235,10 @@ kubectl get services my-service # get external IP
 http://40.76.173.122:8080/ # access external IP from browser
 kubectl delete services my-service
 kubectl delete deployment hello-world
+```
 
-# Updating
+### Updating a pod
+```bash
 kubectl get pods # view running pods
 kubectl describe pods # view current image version of the app
 kubectl set image deployment/frontend www=image:v2 # rolling update "www" containers of "frontend" deployment, updating the image
@@ -215,11 +248,15 @@ kubectl rollout status deployments/kubernetes-bootcamp # confirm the update
 kubectl rollout status -w deployment/frontend # watch rolling update status of "frontend" deployment until completion
 kubectl describe pods # view current image version
 kubectl rollout undo deployments/kubernetes-bootcamp # rollback to the previous deployment
+```
 
-# Logging
+### Logging
+```bash 
 kubectl logs -f deployment/redis-leader
+```
 
-# Kustomize
+### Kustomize
+```bash
 kubectl kustomize <kustomization_directory> # view Resources found in a directory containing a kustomization file
 kubectl apply -k <kustomization_directory> # apply resources
 kubectl kustomize ./ # generate resources
@@ -227,12 +264,8 @@ kubectl apply -k ./ # apply changes
 kubectl get -k ./ # view the deployment object
 kubectl diff -k ./ # preview changes
 kubectl delete -k ./ # delete deployment object
-
-# ConfigMap
-kubectl get configmap
-kubectl get configmap <name> -o yaml
 ```
 
-## Troubleshooting
+## Troubleshooting AKS
 1. Nodes in NotReady status
 In Azure, do Node pools > Update image
